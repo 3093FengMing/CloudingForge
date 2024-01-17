@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:lake",
+  "config": {
+    "fluid": {
+      "type": "simple_state_provider",
+      "state": {
+        "Name": "clouding:cloud_block"
+      }
+    },
+    "barrier": {
+      "type": "simple_state_provider",
+      "state": {
+        "Name": "minecraft:air"
+      }
+    }
+  }
+}

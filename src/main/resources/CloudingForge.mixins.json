@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.fengming.cloudingforge.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "CloudingForge.refmap.json",
+  "mixins": [
+    "BottleItemMixin",
+    "FishingHookMixin",
+    "FishingRodItemMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
