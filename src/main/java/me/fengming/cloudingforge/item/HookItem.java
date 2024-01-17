@@ -1,18 +1,18 @@
 package me.fengming.cloudingforge.item;
 
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,65 +22,62 @@ public class HookItem extends Item {
     private Entity owner;
 
     public HookItem() {
-        super(new Settings().maxCount(1));
+        super(new Properties().stacksTo(1));
     }
 
     public void setOwnerEntity(ItemStack itemStack, Entity ownerEntity) {
         this.owner = ownerEntity;
-        NbtCompound nbt = new NbtCompound();
-        nbt.putUuid("Owner", ownerEntity.getUuid());
-        itemStack.setSubNbt("Data", nbt);
+        CompoundTag nbt = new CompoundTag();
+        nbt.putUUID("Owner", ownerEntity.getUUID());
+        itemStack.setTag(nbt);
     }
 
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        ItemStack itemStack = user.getStackInHand(hand);
-        if (!user.getWorld().isClient) {
-            if (user.fishHook == null) {
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+        ItemStack itemStack = pPlayer.getItemInHand(pUsedHand);
+        if (!pLevel.isClientSide) {
+            if (pPlayer.fishing == null) {
                 itemStack.setCount(0);
             } else {
-                owner.setVelocity(owner.getVelocity().subtract(user.getVelocity()).add(0.04, 0, 0.04));
+                owner.setDeltaMovement(owner.getDeltaMovement().subtract(pPlayer.getDeltaMovement()).add(0.04, 0, 0.04));
             }
         }
-        return super.use(world, user, hand);
+        return super.use(pLevel, pPlayer, pUsedHand);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        if (!context.getWorld().isClient) {
-            PlayerEntity user = context.getPlayer();
-            if (user != null && user.fishHook != null) {
-                owner.setVelocity(owner.getVelocity().subtract(user.getVelocity()).add(0.04, 0, 0.04));
-            } else {
-                context.getStack().setCount(0);
+    public InteractionResult useOn(UseOnContext pContext) {
+        if (!pContext.getLevel().isClientSide) {
+            Player user = pContext.getPlayer();
+            if (user != null && user.fishing != null) {
+                owner.setDeltaMovement(owner.getDeltaMovement().subtract(user.getDeltaMovement()).add(0.04, 0, 0.04));
             }
         }
 
-        return super.useOnBlock(context);
+        return super.useOn(pContext);
     }
 
     @Override
-    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-        if (!user.getWorld().isClient) {
-            if (user.fishHook != null) {
-                owner.setVelocity(owner.getVelocity().subtract(user.getVelocity()).subtract(0.04, 0, 0.04));
-                user.fishHook.updateHookedEntityId(entity);
-                if (entity instanceof PlayerEntity p) {
-                    p.getInventory().insertStack(stack.copy());
+    public InteractionResult interactLivingEntity(ItemStack pStack, Player pPlayer, LivingEntity pInteractionTarget, InteractionHand pUsedHand) {
+        if (pPlayer.level().isClientSide) {
+            if (pPlayer.fishing != null) {
+                owner.setDeltaMovement(owner.getDeltaMovement().subtract(pPlayer.getDeltaMovement()).add(0.04, 0, 0.04));
+                pPlayer.fishing.setHookedEntity(pInteractionTarget);
+                if (pInteractionTarget instanceof Player p) {
+                    p.getInventory().add(pStack.copy());
                 }
             }
-            stack.setCount(0);
+            pStack.setCount(0);
         }
-
-        return super.useOnEntity(stack, user, entity, hand);
+        return super.interactLivingEntity(pStack, pPlayer, pInteractionTarget, pUsedHand);
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        NbtCompound nbt = stack.getSubNbt("Data");
-        if (world == null || nbt == null) return;
-        PlayerEntity p = world.getPlayerByUuid(nbt.getUuid("Owner"));
-        if (p == null) return;
-        tooltip.add(Text.literal("钩子的主人：").append(p.getDisplayName()));
+    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+        CompoundTag nbt = pStack.getTag();
+        if (pLevel == null || nbt == null) return;
+        Player p = pLevel.getPlayerByUUID(nbt.getUUID("Owner"));
+        if (p != null) pTooltipComponents.add(Component.literal("钩子的主人：").append(p.getDisplayName()));
     }
+
 }
