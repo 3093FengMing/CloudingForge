@@ -18,7 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,9 +30,6 @@ public class PoisonousFogRenderer {
     public static float fogHeight = 194;
     public static float depth;
     public static float density;
-    public static float red;
-    public static float green;
-    public static float blue;
     public static float cel;
     private boolean inBlock;
     private int prevPlayerTick;
@@ -76,7 +72,7 @@ public class PoisonousFogRenderer {
                     RenderSystem.setFog(RenderSystem.FogMode.EXP2);
                 } else if (depth < 4) {
                     density = calculate(densityUp, densityBorder, densityUp, densityBorder, depth, 4);
-                    RenderSystem.setFog(RenderSystem.FogMode.EXP);
+                    RenderSystem.setFog(RenderSystem.FogMode.EXP
                 } else if (depth < 8) {
                     density = calculate(densityBorder, densityDown, densityDown, densityBorder, depth - 4, 4);
                     RenderSystem.setFog(RenderSystem.FogMode.EXP);
@@ -335,102 +331,102 @@ public class PoisonousFogRenderer {
             return new Vec3(r, g, b);
         }
      */
-
-        @OnlyIn(Dist.CLIENT)
-        private Vec3 getFogDownColor(Level world, float partialTicks, float cel) {
-            float r = 0.63F;
-            float g = 0.70F;
-            float b = 0.67F;
-            r = r * (cel * 0.75F + 0.25F);
-            g = g * (cel * 0.70F + 0.30F);
-            b = b * (cel * 0.65F + 0.35F);
-            float rain = world.getRainLevel(partialTicks);
-            if (rain > 0.0F) {
-                float f4 = 1.0F - rain * 0.40F * cel;
-                float f5 = 1.0F - rain * 0.35F * cel;
-                r *= f4;
-                g *= f5;
-                b *= f5;
-            }
-            float thunder = world.getThunderLevel(partialTicks);
-            if (thunder > 0.0F) {
-                float f6 = 1.0F - thunder * 0.50F * cel;
-                float f7 = 1.0F - thunder * 0.45F * cel;
-                float f8 = 1.0F - thunder * 0.40F * cel;
-                r *= f6;
-                g *= f7;
-                b *= f8;
-            }
-//            if (world.getLastLightningBolt() > 0) {
-//                float f10 = world.getLastLightningBolt() - partialTicks;
-//                if (f10 > 1.0F)
-//                    f10 = 1.0F;
-//                f10 = f10 * 0.25F;
-//                r = r * (1.0F - f10) + 0.8F * f10;
-//                g = g * (1.0F - f10) + 0.8F * f10;
-//                b = b * (1.0F - f10) + 1.0F * f10;
+//        @OnlyIn(Dist.CLIENT)
+//        private Vec3 getFogDownColor(Level world, float partialTicks, float cel) {
+//            float r = 0.63F;
+//            float g = 0.70F;
+//            float b = 0.67F;
+//            r = r * (cel * 0.75F + 0.25F);
+//            g = g * (cel * 0.70F + 0.30F);
+//            b = b * (cel * 0.65F + 0.35F);
+//            float rain = world.getRainLevel(partialTicks);
+//            if (rain > 0.0F) {
+//                float f4 = 1.0F - rain * 0.40F * cel;
+//                float f5 = 1.0F - rain * 0.35F * cel;
+//                r *= f4;
+//                g *= f5;
+//                b *= f5;
 //            }
-            r = r * this.roof + 0.1F * (1.0F - this.roof);
-            g = g * this.roof + 0.12F * (1.0F - this.roof);
-            b = b * this.roof + 0.15F * (1.0F - this.roof);
-            Entity entity = mc.getCameraEntity();
-            if (entity instanceof LivingEntity le && le.hasEffect(MobEffects.NIGHT_VISION)) {
-                float f8 = this.getNightVisionBrightness(le, partialTicks);
-                float f9 = 1.0F / r;
-                if (f9 > 1.0F / g)
-                    f9 = 1.0F / g;
-                if (f9 > 1.0F / b)
-                    f9 = 1.0F / b;
-                r = r * (1.0F - f8 * (0.85F + 0.1F * this.roof)) + r * f9 * f8 * (0.85F + 0.1F * this.roof);
-                g = g * (1.0F - f8 * 0.85F) + g * f9 * f8 * 0.85F;
-                b = b * (1.0F - f8 * (1.0F - 0.1F * this.roof)) + b * f9 * f8 * (1.0F - 0.1F * this.roof);
-            }
-            return new Vec3(r, g, b);
-        }
-
-    @OnlyIn(Dist.CLIENT)
-    private Vec3 getFogLayerColor(Level world, float partialTicks, float cel) {
-        float r = 1.0F;
-        float g = 1.0F;
-        float b = 1.0F;
-        r = r * (cel * 0.85F + 0.15F);
-        g = g * (cel * 0.82F + 0.18F);
-        b = b * (cel * 0.80F + 0.20F);
-        float rain = world.getRainLevel(partialTicks);
-        if (rain > 0.0F) {
-            float f4 = 1.0F - rain * 0.4F * cel;
-            float f5 = 1.0F - rain * 0.38F * cel;
-            float f6 = 1.0F - rain * 0.35F * cel;
-            r *= f4;
-            g *= f5;
-            b *= f6;
-        }
-        float thunder = world.getThunderLevel(partialTicks);
-        if (thunder > 0.0F) {
-            float f7 = 1.0F - thunder * 0.55F * cel;
-            float f8 = 1.0F - thunder * 0.50F * cel;
-            float f9 = 1.0F - thunder * 0.45F * cel;
-            r *= f7;
-            g *= f8;
-            b *= f9;
-        }
-        r *= 0.75F + 0.25F * this.roof;
-        g *= 0.8F + 0.2F * this.roof;
-        b *= 0.85F + 0.15F * this.roof;
-        Entity entity = mc.getCameraEntity();
-        if (entity instanceof LivingEntity le && le.hasEffect(MobEffects.NIGHT_VISION)) {
-            float f8 = this.getNightVisionBrightness(le, partialTicks);
-            float f9 = 1.0F / r;
-            if (f9 > 1.0F / g)
-                f9 = 1.0F / g;
-            if (f9 > 1.0F / b)
-                f9 = 1.0F / b;
-            r = r * (1.0F - f8) + r * f9 * f8;
-            g = g * (1.0F - f8) + g * f9 * f8;
-            b = b * (1.0F - f8) + b * f9 * f8;
-        }
-        return new Vec3(r, g, b);
-    }
+//            float thunder = world.getThunderLevel(partialTicks);
+//            if (thunder > 0.0F) {
+//                float f6 = 1.0F - thunder * 0.50F * cel;
+//                float f7 = 1.0F - thunder * 0.45F * cel;
+//                float f8 = 1.0F - thunder * 0.40F * cel;
+//                r *= f6;
+//                g *= f7;
+//                b *= f8;
+//            }
+////            if (world.getLastLightningBolt() > 0) {
+////                float f10 = world.getLastLightningBolt() - partialTicks;
+////                if (f10 > 1.0F)
+////                    f10 = 1.0F;
+////                f10 = f10 * 0.25F;
+////                r = r * (1.0F - f10) + 0.8F * f10;
+////                g = g * (1.0F - f10) + 0.8F * f10;
+////                b = b * (1.0F - f10) + 1.0F * f10;
+////            }
+//            r = r * this.roof + 0.1F * (1.0F - this.roof);
+//            g = g * this.roof + 0.12F * (1.0F - this.roof);
+//            b = b * this.roof + 0.15F * (1.0F - this.roof);
+//            Entity entity = mc.getCameraEntity();
+//            if (entity instanceof LivingEntity le && le.hasEffect(MobEffects.NIGHT_VISION)) {
+//                float f8 = this.getNightVisionBrightness(le, partialTicks);
+//                float f9 = 1.0F / r;
+//                if (f9 > 1.0F / g)
+//                    f9 = 1.0F / g;
+//                if (f9 > 1.0F / b)
+//                    f9 = 1.0F / b;
+//                r = r * (1.0F - f8 * (0.85F + 0.1F * this.roof)) + r * f9 * f8 * (0.85F + 0.1F * this.roof);
+//                g = g * (1.0F - f8 * 0.85F) + g * f9 * f8 * 0.85F;
+//                b = b * (1.0F - f8 * (1.0F - 0.1F * this.roof)) + b * f9 * f8 * (1.0F - 0.1F * this.roof);
+//            }
+//            return new Vec3(r, g, b);
+//        }
+//
+//    @OnlyIn(Dist.CLIENT)
+//    private Vec3 getFogLayerColor(Level world, float partialTicks, float cel) {
+//        float r = 1.0F;
+//        float g = 1.0F;
+//        float b = 1.0F;
+//        r = r * (cel * 0.85F + 0.15F);
+//        g = g * (cel * 0.82F + 0.18F);
+//        b = b * (cel * 0.80F + 0.20F);
+//        float rain = world.getRainLevel(partialTicks);
+//        if (rain > 0.0F) {
+//            float f4 = 1.0F - rain * 0.4F * cel;
+//            float f5 = 1.0F - rain * 0.38F * cel;
+//            float f6 = 1.0F - rain * 0.35F * cel;
+//            r *= f4;
+//            g *= f5;
+//            b *= f6;
+//        }
+//        float thunder = world.getThunderLevel(partialTicks);
+//        if (thunder > 0.0F) {
+//            float f7 = 1.0F - thunder * 0.55F * cel;
+//            float f8 = 1.0F - thunder * 0.50F * cel;
+//            float f9 = 1.0F - thunder * 0.45F * cel;
+//            r *= f7;
+//            g *= f8;
+//            b *= f9;
+//        }
+//        r *= 0.75F + 0.25F * this.roof;
+//        g *= 0.8F + 0.2F * this.roof;
+//        b *= 0.85F + 0.15F * this.roof;
+//        Entity entity = mc.getCameraEntity();
+//        if (entity instanceof LivingEntity le && le.hasEffect(MobEffects.NIGHT_VISION)) {
+//            float f8 = this.getNightVisionBrightness(le, partialTicks);
+//            float f9 = 1.0F / r;
+//            if (f9 > 1.0F / g)
+//                f9 = 1.0F / g;
+//            if (f9 > 1.0F / b)
+//                f9 = 1.0F / b;
+//            r = r * (1.0F - f8) + r * f9 * f8;
+//            g = g * (1.0F - f8) + g * f9 * f8;
+//            b = b * (1.0F - f8) + b * f9 * f8;
+//        }
+//        return new Vec3(r, g, b);
+//    }
+//
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
@@ -447,17 +443,10 @@ public class PoisonousFogRenderer {
     private static float colorRange = 0.65F / planeCount;
     private static float alpha = Math.min(1.0F, 5.0F / planeCount);
 
-    public static void updateFogQuality() {
-        planeCount = (int) Math.pow(2, 2);
-        layerRange = 4.0F / planeCount;
-        colorRange = 0.65F / planeCount;
-        alpha = Math.min(1.0F, 5.0F / planeCount);
-    }
-
     private void fogRenderOld(float partialTicks, ClientLevel world, Minecraft mc) {
         Entity entity = mc.getCameraEntity();
-        float cameraHeight = mc.getCameraEntity().getEyeHeight();
-        float playerHeight = (float)(entity.yOld + (entity.position().y - entity.yOld) * partialTicks);
+        float cameraHeight = (float) entity.getEyeY();
+        float playerHeight = (float)(entity.yOld + (entity.getY() - entity.yOld) * partialTicks);
         byte segmentCount = 4; //Segment count
         int renderDistance = (mc.options.renderDistance().get() + 2) * 16;
         int segmentSize = renderDistance / segmentCount; //Segment size
@@ -470,31 +459,29 @@ public class PoisonousFogRenderer {
         // RenderSystem.enableFog();
         // RenderSystem.blendFunc(GL11.GL_GREATER, 0);
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        float _red;
-        float _green;
-        float _blue;
+        float red;
+        float green;
+        float blue;
         if (depth < 4) {
             Vec3 vecLayer = getFogLayerColor(world, partialTicks);
-            _red = (float)vecLayer.x;
-            _green = (float)vecLayer.y;
-            _blue = (float)vecLayer.z;
+            red = (float)vecLayer.x;
+            green = (float)vecLayer.y;
+            blue = (float)vecLayer.z;
         } else {
             Vec3 vecDown = getFogDownColor(world, partialTicks);
-            _red = (float)vecDown.x;
-            _green = (float)vecDown.y;
-            _blue = (float)vecDown.z;
+            red = (float)vecDown.x;
+            green = (float)vecDown.y;
+            blue = (float)vecDown.z;
         }
-        float colorOffset;
+        // System.out.println(red + ", " + green + ", " + blue);
         float layerOffset = -0.0035F;
-        float height; float red; float green; float blue; float alphaFin;
+        float height;
+        float alphaFin;
         for (int n = 0; n <= planeCount; n++) {
+            // Up Layer
             height = fogHeight - 4 - playerHeight + layerOffset;
-            colorOffset = 0.65F - n * colorRange;
-            if (height - cameraHeight < -0.1) {
+            if (height - cameraHeight< -0.1) {
                 vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-                red = Math.min(1, _red + colorOffset);
-                green = Math.min(1, _green + colorOffset);
-                blue = Math.min(1, _blue + colorOffset);
                 alphaFin = alpha;
                 for (int x = -segmentSize * segmentCount; x < segmentSize * segmentCount; x += segmentSize) {
                     for (int z = -segmentSize * segmentCount; z < segmentSize * segmentCount; z += segmentSize) {
@@ -506,27 +493,25 @@ public class PoisonousFogRenderer {
                 }
                 tessellator.end();
             }
-            height = fogHeight - 4 - playerHeight - layerOffset;
+            // Down Layer
+            height = fogHeight - 4 - playerHeight- layerOffset;
             if (height - cameraHeight > 0.1) {
-                vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-                red = Math.min(1, _red + colorOffset);
-                green = Math.min(1, _green + colorOffset);
-                blue = Math.min(1, _blue + colorOffset);
-                alphaFin = Math.min(1.0F, alpha + Math.max(0, (height) / 100));
-                for (int x = -segmentSize * segmentCount; x < segmentSize * segmentCount; x += segmentSize) {
-                    for (int z = -segmentSize * segmentCount; z < segmentSize * segmentCount; z += segmentSize) {
-                        vertexbuffer.vertex(x, height, z).uv((float)(renderDistance + z) / doubleRenderDistance, (float)(renderDistance - x) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
-                        vertexbuffer.vertex(x + segmentSize, height, z).uv((float)(renderDistance + z) / doubleRenderDistance, (float)(renderDistance - x - segmentSize) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
-                        vertexbuffer.vertex(x + segmentSize, height, z + segmentSize).uv((float)(renderDistance + z + segmentSize) / doubleRenderDistance, (float)(renderDistance - x - segmentSize) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
-                        vertexbuffer.vertex(x, height, z + segmentSize).uv((float)(renderDistance + z + segmentSize) / doubleRenderDistance, (float)(renderDistance - x) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
-                    }
-                }
-                tessellator.end();
+               vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+               alphaFin = Math.min(1.0F, alpha + Math.max(0, (height) / 100));
+               for (int x = -segmentSize * segmentCount; x < segmentSize * segmentCount; x += segmentSize) {
+                   for (int z = -segmentSize * segmentCount; z < segmentSize * segmentCount; z += segmentSize) {
+                       vertexbuffer.vertex(x, height, z).uv((float)(renderDistance + z) / doubleRenderDistance, (float)(renderDistance - x) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
+                       vertexbuffer.vertex(x + segmentSize, height, z).uv((float)(renderDistance + z) / doubleRenderDistance, (float)(renderDistance - x - segmentSize) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
+                       vertexbuffer.vertex(x + segmentSize, height, z + segmentSize).uv((float)(renderDistance + z + segmentSize) / doubleRenderDistance, (float)(renderDistance - x - segmentSize) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
+                       vertexbuffer.vertex(x, height, z + segmentSize).uv((float)(renderDistance + z + segmentSize) / doubleRenderDistance, (float)(renderDistance - x) / doubleRenderDistance).color(red, green, blue, alphaFin).endVertex();
+                   }
+               }
+               tessellator.end();
             }
             layerOffset += layerRange;
         }
-        // RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
-        // RenderSystem.blendFunc(GL11.GL_GREATER, 0.1F);
+        RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+        //RenderSystem.blendFunc(GlStateManager.GL_GREATER, 0.1F);
         RenderSystem.disableBlend();
     }
 
@@ -585,11 +570,13 @@ public class PoisonousFogRenderer {
 
     @OnlyIn(Dist.CLIENT)
     private Vec3 getFogDownColor(Level world, float partialTicks) {
-        return getFogDownColor(world, partialTicks, cel);
+        return new Vec3(0.819608F, 0.886275F, 0.498039F);
+        // return getFogDownColor(world, partialTicks, cel);
     }
 
     @OnlyIn(Dist.CLIENT)
     private Vec3 getFogLayerColor(Level world, float partialTicks) {
-        return getFogLayerColor(world, partialTicks, cel);
+        return new Vec3(0.819608F, 0.886275F, 0.498039F);
+        // return getFogLayerColor(world, partialTicks, cel);
     }
 }
