@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 public class CloudingForge {
 
     public static final String MODID = "clouding";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
@@ -114,18 +114,18 @@ public class CloudingForge {
 
         @SubscribeEvent
         public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-//            Player p = event.player;
-//            if (!event.side.isClient()) {
-//                PlayerOxygenCapability cap = Utils.getOxygenCapability(p);
-//                int oxygen = cap.getOxygen();
-//                if (oxygen >= 110) {
-//                    p.hurt(p.damageSources().genericKill(), 10.0F);
-//                } else if (oxygen >= 80) {
-//                    p.addEffect(new MobEffectInstance(MobEffects.POISON, 20, 4, true, true));
-//                }
-//                p.sendSystemMessage(Component.literal("oxygen:" + oxygen));
-//                cap.addOxygen(p.getY() > 192 ? -1 : 1);
-//            }
+            Player p = event.player;
+            if (!event.side.isClient()) {
+                PlayerOxygenCapability cap = Utils.getOxygenCapability(p);
+                int oxygen = cap.getOxygen();
+                if (oxygen >= 110) {
+                    // p.hurt(p.damageSources().genericKill(), 2.0F);
+                } else if (oxygen >= 80) {
+                    p.addEffect(new MobEffectInstance(MobEffects.POISON, 20, 4, true, true));
+                }
+                // p.sendSystemMessage(Component.literal("oxygen:" + oxygen));
+                cap.addOxygen(p.getY() > 192 ? -1 : 1);
+            }
         }
     }
 }

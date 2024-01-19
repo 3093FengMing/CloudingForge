@@ -51,7 +51,7 @@ public class PoisonousFogRenderer {
                     cel = Mth.clamp(f, 0.0F, 1.0F);
                     this.roof += (getRoof(world, entity.getOnPos().above().offset((int)-(Math.sin(Math.toRadians(entity.yRotO)) * 4), 0, (int)(Math.cos(Math.toRadians(entity.yRotO)) * 4))) - this.roof) * 0.1F;
                     // fogHeight = MistWorld.getFogHight(world, e.renderTickTime) + 4.0F;
-                    depth = fogHeight - entity.getEyeHeight();
+                    depth = (float) (fogHeight - entity.getY() - entity.getEyeHeight());
                     if (this.prevPlayerTick != entity.tickCount) {
                         this.prevPlayerTick = entity.tickCount;
                     }
@@ -436,22 +436,9 @@ public class PoisonousFogRenderer {
     @SubscribeEvent
     public void renderEvent(RenderLevelStageEvent e) {
         Level world = mc.player.level();
-        fogRenderOld(e.getPartialTick(), (ClientLevel) world, mc);
-        if (world.isClientSide && mc.player.position().y > 194) {
-            if (this.inBlock) {
-                // fogRenderOld(e.getPartialTick(), (ClientLevel) world, mc);
-                // RenderSystem.disableFog();
-            }
-            this.inBlock = true;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public void renderEvent(RenderHighlightEvent e) {
-        Level world = mc.player.level();
-        if (world.isClientSide && mc.player.position().y > 194) {
-            this.inBlock = false;
+        //if (e.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL)
+        {
+            fogRenderOld(e.getPartialTick(), (ClientLevel) world, mc);
         }
     }
 
@@ -477,8 +464,8 @@ public class PoisonousFogRenderer {
         int doubleRenderDistance = renderDistance * 2;
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuilder();
-        //RenderSystem.setShaderColor(0.819608F, 0.886275F, 0.498039F, 1.0F);
-        RenderSystem.setShaderTexture(0, locationFogPng);
+        RenderSystem.setShaderColor(0.819608F, 0.886275F, 0.498039F, 1.0F);
+        //RenderSystem.setShaderTexture(0, locationFogPng);
         RenderSystem.enableBlend();
         // RenderSystem.enableFog();
         // RenderSystem.blendFunc(GL11.GL_GREATER, 0);

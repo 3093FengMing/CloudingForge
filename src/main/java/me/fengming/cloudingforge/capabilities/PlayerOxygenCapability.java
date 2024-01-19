@@ -25,6 +25,7 @@ public class PlayerOxygenCapability implements INBTSerializable<CompoundTag> {
     }
 
     public void addOxygen(int oxygen) {
-        this.oxygen += (oxygen < 0 ? 0 : (Math.min(oxygen, 120)));
+        int i = this.oxygen + oxygen;
+        this.oxygen = (i < 0 ? 0 : (Math.min(i, 120)));
     }
 }
